@@ -1,6 +1,6 @@
 "use strict";
 
-// 3 sections × 4 rows × 12 seats = 144 seats
+// Venue data: 144 seats across three price categories.
 const venue = [
   {
     name: "VIP",
@@ -28,13 +28,18 @@ const unavailableSeats = new Set([
   "I-7", "K-4", "L-10"
 ]);
 
+const storageKey = "theatre-ticket-cart";
 const seats = [];
+let cart = [];
 let inspectedSeatId = null;
 
 const sectionsContainer = document.getElementById("seating-sections");
 const detailsContainer = document.getElementById("seat-details");
 const addButton = document.getElementById("add-to-cart");
 const statusMessage = document.getElementById("status-message");
+const cartItems = document.getElementById("cart-items");
+const cartTotal = document.getElementById("cart-total");
+const emptyCart = document.getElementById("empty-cart");
 
 function createSeatData() {
   venue.forEach(function (section) {
@@ -55,6 +60,45 @@ function createSeatData() {
   });
 }
 
+function findSeat(id) {
+  return seats.find(function (seat) {
+    return seat.id === id;
+  });
+}
+
+function getSeatStatus(seat) {
+  if (seat.unavailable) return "Unavailable";
+  if (cart.includes(seat.id)) return "In Cart";
+  return "Available";
+}
+
+function restoreCart() {
+  try {
+    const saved = JSON.parse(localStorage.getItem(storageKey));
+
+    if (Array.isArray(saved)) {
+      cart = [...new Set(saved)].filter(function (id) {
+        const seat = findSeat(id);
+        return seat && !seat.unavailable;
+      });
+    }
+  } catch {
+    cart = [];
+    statusMessage.textContent =
+      "Saved cart could not be restored. Starting with an empty cart.";
+  }
+}
+
+function saveCart() {
+  try {
+    localStorage.setItem(storageKey, JSON.stringify(cart));
+  } catch {
+    statusMessage.textContent =
+      "Cart updated, but browser storage is unavailable. " +
+      "Tickets may not remain after refresh.";
+  }
+}
+
 function renderVenue() {
   sectionsContainer.replaceChildren();
 
@@ -70,36 +114,19 @@ function renderVenue() {
       const rowElement = document.createElement("div");
       rowElement.className = "seat-row";
 
-      const rowLabel = document.createElement("span");
-      rowLabel.className = "row-label";
-      rowLabel.textContent = row;
-      rowElement.appendChild(rowLabel);
+      const label = document.createElement("span");
+      label.className = "row-label";
+      label.textContent = row;
+      rowElement.appendChild(label);
 
-      const rowSeats = seats.filter(function (seat) {
+      seats.filter(function (seat) {
         return seat.row === row;
-      });
-
-      rowSeats.forEach(function (seat) {
+      }).forEach(function (seat) {
         const button = document.createElement("button");
         button.type = "button";
         button.className = "seat";
         button.textContent = seat.number;
         button.dataset.seatId = seat.id;
-
-        const state = seat.unavailable ? "Unavailable" : "Available";
-
-        button.setAttribute(
-          "aria-label",
-          `${seat.section}, row ${seat.row}, seat ${seat.number}, ` +
-          `${seat.price} AZN, ${state}`
-        );
-
-        button.setAttribute("aria-pressed", "false");
-
-        if (seat.unavailable) {
-          button.classList.add("unavailable");
-        }
-
         rowElement.appendChild(button);
       });
 
@@ -108,55 +135,308 @@ function renderVenue() {
 
     sectionsContainer.appendChild(sectionElement);
   });
+
+  updateSeatStates();
 }
 
-function inspectSeat(id) {
-  const seat = seats.find(function (item) {
-    return item.id === id;
+function updateSeatStates() {
+  sectionsContainer.querySelectorAll(".seat").forEach(function (button) {
+    const seat = findSeat(button.dataset.seatId);
+    const inCart = cart.includes(seat.id);
+    const inspected = seat.id === inspectedSeatId;
+
+    button.classList.toggle("unavailable", seat.unavailable);
+    button.classList.toggle("in-cart", inCart);
+    button.classList.toggle(
+      "inspected",
+      inspected && !seat.unavailable && !inCart
+    );
+
+    button.setAttribute("aria-pressed", String(inspected));
+    button.setAttribute(
+      "aria-label",
+      `${seat.section}, row ${seat.row}, seat ${seat.number}, ` +
+      `${seat.price} AZN, ${getSeatStatus(seat)}`
+    );
   });
+}
+
+function renderDetails() {
+  const seat = findSeat(inspectedSeatId);
 
   if (!seat) {
+    detailsContainer.textContent =
+      "Click a seat to see its details and price.";
+    addButton.disabled = true;
     return;
   }
-
-  inspectedSeatId = seat.id;
 
   detailsContainer.innerHTML = `
     <p><strong>Section:</strong> ${seat.section}</p>
     <p><strong>Row:</strong> ${seat.row}</p>
     <p><strong>Seat:</strong> ${seat.number}</p>
     <p><strong>Price:</strong> ${seat.price} AZN</p>
-    <p><strong>Status:</strong>
-      ${seat.unavailable ? "Unavailable" : "Available"}
-    </p>
+    <p><strong>Status:</strong> ${getSeatStatus(seat)}</p>
   `;
 
-  // Cart functionality will be added in the next stage.
-  addButton.disabled = true;
+  addButton.disabled = seat.unavailable || cart.includes(seat.id);
+}
 
-  statusMessage.textContent = seat.unavailable
-    ? "This seat is unavailable and cannot be added."
-    : "Seat inspected. Cart functionality will be added next.";
+function inspectSeat(id) {
+  const seat = findSeat(id);
+  if (!seat) return;
 
-  sectionsContainer.querySelectorAll(".seat").forEach(function (button) {
-    const isInspected = button.dataset.seatId === inspectedSeatId;
+  inspectedSeatId = id;
+  renderDetails();
+  updateSeatStates();
 
-    button.classList.toggle(
-      "inspected",
-      isInspected && !seat.unavailable
+  if (seat.unavailable) {
+    statusMessage.textContent = "This seat is unavailable.";
+  } else if (cart.includes(id)) {
+    statusMessage.textContent = "This seat is already in your cart.";
+  } else {
+    statusMessage.textContent =
+      "Press ADD TO CART to add this ticket.";
+  }
+}
+
+function renderCart() {
+  cartItems.replaceChildren();
+  let total = 0;
+
+  cart.forEach(function (id) {
+    const seat = findSeat(id);
+    total += seat.price;
+
+    const item = document.createElement("li");
+    item.className = "cart-item";
+
+    const text = document.createElement("span");
+    text.textContent =
+      `${seat.section} · ${seat.row}${seat.number} · ${seat.price} AZN`;
+
+    const removeButton = document.createElement("button");
+    removeButton.type = "button";
+    removeButton.textContent = "Remove";
+    removeButton.dataset.removeId = id;
+    removeButton.setAttribute(
+      "aria-label",
+      `Remove seat ${seat.row}${seat.number} from cart`
     );
 
-    button.setAttribute("aria-pressed", String(isInspected));
+    item.append(text, removeButton);
+    cartItems.appendChild(item);
   });
+
+  cartTotal.textContent = total;
+  emptyCart.hidden = cart.length > 0;
+}
+
+function updateInterface() {
+  updateSeatStates();
+  renderDetails();
+  renderCart();
+}
+
+function addToCart() {
+  const seat = findSeat(inspectedSeatId);
+
+  if (!seat || seat.unavailable || cart.includes(seat.id)) {
+    return;
+  }
+
+  cart.push(seat.id);
+  updateInterface();
+
+  statusMessage.textContent =
+    `Seat ${seat.row}${seat.number} added to your cart.`;
+
+  saveCart();
+}
+
+function removeFromCart(id) {
+  if (!cart.includes(id)) return;
+
+  cart = cart.filter(function (seatId) {
+    return seatId !== id;
+  });
+
+  updateInterface();
+  statusMessage.textContent = `Seat ${id} removed from your cart.`;
+  saveCart();
+
+  // Keep keyboard focus on a visible control after removal.
+  const nextRemoveButton = cartItems.querySelector("button");
+  if (nextRemoveButton) {
+    nextRemoveButton.focus();
+  } else {
+    const seatButton = sectionsContainer.querySelector(
+      `[data-seat-id="${id}"]`
+    );
+    if (seatButton) seatButton.focus({ preventScroll: true });
+  }
 }
 
 sectionsContainer.addEventListener("click", function (event) {
   const button = event.target.closest("button[data-seat-id]");
+  if (button) inspectSeat(button.dataset.seatId);
+});
 
-  if (button) {
-    inspectSeat(button.dataset.seatId);
-  }
+addButton.addEventListener("click", addToCart);
+
+cartItems.addEventListener("click", function (event) {
+  const button = event.target.closest("button[data-remove-id]");
+  if (button) removeFromCart(button.dataset.removeId);
 });
 
 createSeatData();
+restoreCart();
 renderVenue();
+renderDetails();
+renderCart();
+// Map navigation
+const mapViewport = document.getElementById("map-viewport");
+const venueMap = document.getElementById("venue-map");
+
+let mapScale = 1;
+let mapX = 0;
+let mapY = 0;
+let minimumScale = 0.2;
+
+mapViewport.style.position = "relative";
+mapViewport.style.overflow = "hidden";
+
+venueMap.style.position = "absolute";
+venueMap.style.left = "0";
+venueMap.style.top = "0";
+venueMap.style.margin = "0";
+venueMap.style.transformOrigin = "top left";
+
+function limitValue(value, minimum, maximum) {
+  return Math.max(minimum, Math.min(maximum, value));
+}
+
+function applyMapView() {
+  const viewportWidth = mapViewport.clientWidth;
+  const viewportHeight = mapViewport.clientHeight;
+  const scaledWidth = venueMap.offsetWidth * mapScale;
+  const scaledHeight = venueMap.offsetHeight * mapScale;
+
+  const minimumX = Math.min(0, viewportWidth - scaledWidth) - 60;
+  const maximumX = Math.max(0, viewportWidth - scaledWidth) + 60;
+  const minimumY = Math.min(0, viewportHeight - scaledHeight) - 60;
+  const maximumY = Math.max(0, viewportHeight - scaledHeight) + 60;
+
+  mapX = limitValue(mapX, minimumX, maximumX);
+  mapY = limitValue(mapY, minimumY, maximumY);
+
+  venueMap.style.transform =
+    `translate(${mapX}px, ${mapY}px) scale(${mapScale})`;
+
+  document.getElementById("zoom-in").disabled = mapScale >= 2.5;
+  document.getElementById("zoom-out").disabled =
+    mapScale <= minimumScale + 0.001;
+}
+
+function resetMapView() {
+  const availableWidth = Math.max(1, mapViewport.clientWidth - 24);
+  const availableHeight = Math.max(1, mapViewport.clientHeight - 24);
+
+  const fittedScale = Math.min(
+    availableWidth / venueMap.offsetWidth,
+    availableHeight / venueMap.offsetHeight,
+    1
+  );
+
+  minimumScale = Math.min(0.4, fittedScale);
+  mapScale = fittedScale;
+
+  mapX = (
+    mapViewport.clientWidth - venueMap.offsetWidth * mapScale
+  ) / 2;
+
+  mapY = (
+    mapViewport.clientHeight - venueMap.offsetHeight * mapScale
+  ) / 2;
+
+  applyMapView();
+}
+
+function zoomMap(multiplier) {
+  const previousScale = mapScale;
+  const nextScale = limitValue(
+    previousScale * multiplier,
+    minimumScale,
+    2.5
+  );
+
+  const centerX = mapViewport.clientWidth / 2;
+  const centerY = mapViewport.clientHeight / 2;
+
+  mapX = centerX -
+    (centerX - mapX) * (nextScale / previousScale);
+
+  mapY = centerY -
+    (centerY - mapY) * (nextScale / previousScale);
+
+  mapScale = nextScale;
+  applyMapView();
+}
+
+function moveMap(horizontal, vertical) {
+  mapX += horizontal;
+  mapY += vertical;
+  applyMapView();
+}
+
+document.getElementById("zoom-in").addEventListener(
+  "click",
+  function () {
+    zoomMap(1.2);
+  }
+);
+
+document.getElementById("zoom-out").addEventListener(
+  "click",
+  function () {
+    zoomMap(1 / 1.2);
+  }
+);
+
+document.getElementById("move-up").addEventListener(
+  "click",
+  function () {
+    moveMap(0, -60);
+  }
+);
+
+document.getElementById("move-down").addEventListener(
+  "click",
+  function () {
+    moveMap(0, 60);
+  }
+);
+
+document.getElementById("move-left").addEventListener(
+  "click",
+  function () {
+    moveMap(-60, 0);
+  }
+);
+
+document.getElementById("move-right").addEventListener(
+  "click",
+  function () {
+    moveMap(60, 0);
+  }
+);
+
+document.getElementById("reset-view").addEventListener(
+  "click",
+  resetMapView
+);
+
+const mapResizeObserver = new ResizeObserver(resetMapView);
+mapResizeObserver.observe(mapViewport);
+
+resetMapView();
