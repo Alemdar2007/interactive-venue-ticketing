@@ -4,30 +4,67 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Interactive Theatre Ticketing</title>
+  <link rel="stylesheet" href="style.css">
+  <script src="app.js" defer></script>
 </head>
 <body>
   <header>
     <h1>Interactive Theatre Ticketing</h1>
-    <p>Choose your seat and enjoy the show.</p>
+    <p>Inspect a seat, check its price, then add it to your cart.</p>
   </header>
 
   <main>
-    <section>
-      <h2>Theatre Map</h2>
-      <p>Stage</p>
-      <p>The seating map will appear here.</p>
+    <section class="map-panel" aria-labelledby="map-title">
+      <h2 id="map-title">Theatre Map</h2>
+
+      <div class="map-controls" aria-label="Map navigation">
+        <button type="button" id="zoom-in">Zoom In +</button>
+        <button type="button" id="zoom-out">Zoom Out −</button>
+        <button type="button" id="move-up">Move Up</button>
+        <button type="button" id="move-down">Move Down</button>
+        <button type="button" id="move-left">Move Left</button>
+        <button type="button" id="move-right">Move Right</button>
+        <button type="button" id="reset-view">Reset View</button>
+      </div>
+
+      <div class="legend" aria-label="Seat states">
+        <span><i class="key available"></i> Available</span>
+        <span><i class="key inspected"></i> Inspected</span>
+        <span><i class="key in-cart"></i> In Cart</span>
+        <span><i class="key unavailable"></i> Unavailable</span>
+      </div>
+
+      <div id="map-viewport">
+        <div id="venue-map">
+          <div class="stage">STAGE</div>
+          <div id="seating-sections"></div>
+        </div>
+      </div>
     </section>
 
-    <section>
-      <h2>Seat Details</h2>
-      <p>Select a seat to see its details and price.</p>
-    </section>
+    <aside class="sidebar">
+      <section class="details-panel" aria-labelledby="details-title">
+        <h2 id="details-title">Seat Details</h2>
+        <div id="seat-details" aria-live="polite">
+          <p>Click a seat to see its details and price.</p>
+        </div>
+        <button type="button" id="add-to-cart" disabled>
+          ADD TO CART
+        </button>
+        <p id="status-message" role="status"></p>
+      </section>
 
-    <section>
-      <h2>Your Cart</h2>
-      <p>Your selected tickets will appear here.</p>
-      <p>Total: 0 AZN</p>
-    </section>
+      <section class="cart-panel" aria-labelledby="cart-title">
+        <h2 id="cart-title">Your Cart</h2>
+        <p id="empty-cart">Your cart is empty.</p>
+        <ul id="cart-items"></ul>
+        <p class="total">Total: <span id="cart-total">0</span> AZN</p>
+      </section>
+    </aside>
   </main>
+
+  <footer>
+    <p>Web &amp; Mobile I — Theatre Ticketing Project</p>
+  </footer>
 </body>
 </html>

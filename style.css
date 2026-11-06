@@ -1,0 +1,297 @@
+* {
+    box-sizing: border-box;
+  }
+  
+  body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #eef2f7;
+    color: #172033;
+  }
+  
+  header {
+    padding: 32px 20px;
+    text-align: center;
+    background: #17233d;
+    color: white;
+  }
+  
+  header h1 {
+    margin: 0 0 12px;
+  }
+  
+  header p {
+    margin: 0;
+    line-height: 1.6;
+  }
+  
+  main {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 310px;
+    gap: 24px;
+    max-width: 1400px;
+    margin: 28px auto;
+    padding: 0 20px;
+  }
+  
+  .map-panel,
+  .details-panel,
+  .cart-panel {
+    padding: 24px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 18px #17203312;
+  }
+  
+  h2 {
+    margin-top: 0;
+  }
+  
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+  }
+  
+  button {
+    padding: 10px 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    background: white;
+    color: #172033;
+    font: inherit;
+    cursor: pointer;
+  }
+  
+  button:hover:not(:disabled) {
+    background: #e2e8f0;
+  }
+  
+  button:focus-visible {
+    outline: 3px solid #2563eb;
+    outline-offset: 3px;
+  }
+  
+  button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+  
+  .map-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 20px;
+  }
+  
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+    font-size: 14px;
+  }
+  
+  .legend span {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .key {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+  }
+  
+  .available {
+    background: #dbeafe;
+  }
+  
+  .inspected {
+    background: #fbbf24;
+  }
+  
+  .in-cart {
+    background: #34d399;
+  }
+  
+  .unavailable {
+    background: #94a3b8;
+  }
+  
+  #map-viewport {
+    height: 620px;
+    overflow: auto;
+    border: 1px solid #dbe2ec;
+    border-radius: 12px;
+    background: #f8fafc;
+  }
+  
+  #venue-map {
+    width: 620px;
+    margin: 0 auto;
+    padding: 28px;
+    transform-origin: center center;
+  }
+  
+  .stage {
+    padding: 18px;
+    margin-bottom: 28px;
+    border-radius: 0 0 40px 40px;
+    background: #17233d;
+    color: white;
+    text-align: center;
+    letter-spacing: 8px;
+    font-weight: bold;
+  }
+  
+  .venue-section {
+    margin-bottom: 24px;
+  }
+  
+  .venue-section h3 {
+    margin: 0 0 12px;
+    text-align: center;
+    font-size: 16px;
+  }
+  
+  .seat-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+  
+  .row-label {
+    width: 24px;
+    flex-shrink: 0;
+    font-weight: bold;
+  }
+  
+  .seat {
+    width: 36px;
+    height: 34px;
+    flex-shrink: 0;
+    padding: 0;
+    border: 1px solid #93c5fd;
+    border-radius: 8px 8px 4px 4px;
+    background: #dbeafe;
+    font-size: 12px;
+  }
+  
+  .seat:nth-child(7) {
+    margin-right: 20px;
+  }
+  
+  .seat:hover:not(:disabled) {
+    background: #bfdbfe;
+  }
+  
+  .seat.inspected {
+    background: #fbbf24;
+    border-color: #b45309;
+  }
+  
+  .seat.in-cart {
+    background: #34d399;
+    border-color: #047857;
+  }
+  
+  .seat.unavailable {
+    background: #94a3b8;
+    border-color: #64748b;
+    color: #172033;
+  }
+  
+  #seat-details {
+    line-height: 1.6;
+  }
+  
+  #add-to-cart {
+    width: 100%;
+    margin-top: 12px;
+    border: none;
+    background: #2563eb;
+    color: white;
+    font-weight: bold;
+  }
+  
+  #add-to-cart:hover:not(:disabled) {
+    background: #1d4ed8;
+  }
+  
+  #status-message {
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  #cart-items {
+    padding: 0;
+    list-style: none;
+  }
+  
+  .cart-item {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 0;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .cart-item button {
+    padding: 6px 10px;
+    color: #b91c1c;
+  }
+  
+  .total {
+    padding-top: 16px;
+    border-top: 2px solid #e2e8f0;
+    font-size: 20px;
+    font-weight: bold;
+  }
+  
+  footer {
+    padding: 16px;
+    text-align: center;
+    color: #526078;
+  }
+  
+  @media (max-width: 950px) {
+    main {
+      grid-template-columns: 1fr;
+    }
+  
+    .sidebar {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  
+  @media (max-width: 600px) {
+    header h1 {
+      font-size: 26px;
+    }
+  
+    main {
+      padding: 0 12px;
+    }
+  
+    .map-panel,
+    .details-panel,
+    .cart-panel {
+      padding: 16px;
+    }
+  
+    .sidebar {
+      grid-template-columns: 1fr;
+    }
+  
+    #map-viewport {
+      height: 520px;
+    }
+  }
