@@ -27,4 +27,4 @@ Use **Reset View** to fit the whole theatre back into the map area.
 
 ## Demo video
 
-[Watch the demo with English captions on OneDrive](https://adauniversity-my.sharepoint.com/:v:/g/personal/aibrahimli17101_ada_edu_az/IQBR9wBkFXn7SJZS8J-mFe29AadCcsyqaRA3hJWcVo8RIP8?e=YjrSH4&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D)
+[Watch the demo with bonus features on OneDrive](https://adauniversity-my.sharepoint.com/:v:/g/personal/aibrahimli17101_ada_edu_az/IQA5yKoisAEnS6UxZHQMeQttAafiyj8b9M3Vn4AzJjnBBlQ?e=ce8dwt&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D)
