@@ -446,10 +446,14 @@ mapViewport.style.userSelect = "none";
 mapViewport.addEventListener("wheel", function (event) {
   if (event.ctrlKey || event.deltaY === 0) return;
 
+  const zoomingIn = event.deltaY < 0;
+  if ((zoomingIn && mapScale >= 2.5) ||
+      (!zoomingIn && mapScale <= minimumScale)) return;
+
   event.preventDefault();
   const bounds = mapViewport.getBoundingClientRect();
   zoomMap(
-    event.deltaY < 0 ? 1.1 : 1 / 1.1,
+    zoomingIn ? 1.1 : 1 / 1.1,
     event.clientX - bounds.left - mapViewport.clientLeft,
     event.clientY - bounds.top - mapViewport.clientTop
   );
