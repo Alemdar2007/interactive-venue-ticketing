@@ -362,7 +362,11 @@ function resetMapView() {
   applyMapView();
 }
 
-function zoomMap(multiplier) {
+function zoomMap(
+  multiplier,
+  anchorX = mapViewport.clientWidth / 2,
+  anchorY = mapViewport.clientHeight / 2
+) {
   const previousScale = mapScale;
   const nextScale = limitValue(
     previousScale * multiplier,
@@ -370,14 +374,9 @@ function zoomMap(multiplier) {
     2.5
   );
 
-  const centerX = mapViewport.clientWidth / 2;
-  const centerY = mapViewport.clientHeight / 2;
-
-  mapX = centerX -
-    (centerX - mapX) * (nextScale / previousScale);
-
-  mapY = centerY -
-    (centerY - mapY) * (nextScale / previousScale);
+  const scaleRatio = nextScale / previousScale;
+  mapX = anchorX - (anchorX - mapX) * scaleRatio;
+  mapY = anchorY - (anchorY - mapY) * scaleRatio;
 
   mapScale = nextScale;
   applyMapView();
@@ -448,7 +447,12 @@ mapViewport.addEventListener("wheel", function (event) {
   if (event.ctrlKey || event.deltaY === 0) return;
 
   event.preventDefault();
-  zoomMap(event.deltaY < 0 ? 1.1 : 1 / 1.1);
+  const bounds = mapViewport.getBoundingClientRect();
+  zoomMap(
+    event.deltaY < 0 ? 1.1 : 1 / 1.1,
+    event.clientX - bounds.left - mapViewport.clientLeft,
+    event.clientY - bounds.top - mapViewport.clientTop
+  );
 }, { passive: false });
 
 let mapDrag = null;
