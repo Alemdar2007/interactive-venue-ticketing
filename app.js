@@ -255,18 +255,19 @@ function addToCart() {
 }
 
 function removeFromCart(id) {
-  if (!cart.includes(id)) return;
+  const removedIndex = cart.indexOf(id);
+  if (removedIndex === -1) return;
 
-  cart = cart.filter(function (seatId) {
-    return seatId !== id;
-  });
+  cart.splice(removedIndex, 1);
 
   updateInterface();
   statusMessage.textContent = `Seat ${id} removed from your cart.`;
   saveCart();
 
   // Keep keyboard focus on a visible control after removal.
-  const nextRemoveButton = cartItems.querySelector("button");
+  const remainingButtons = cartItems.querySelectorAll("button[data-remove-id]");
+  const nextRemoveButton =
+    remainingButtons[Math.min(removedIndex, remainingButtons.length - 1)];
   if (nextRemoveButton) {
     nextRemoveButton.focus();
   } else {
