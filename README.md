@@ -19,6 +19,12 @@ Use the zoom and direction buttons to explore the map. **Reset View**
 fits the full theatre into the map area again. The browser saves
 the cart in `localStorage`, so it remains after a page refresh.
 
+## Mouse and trackpad navigation
+
+Point at the seating map and use the mouse wheel or scroll with two
+fingers on a trackpad to zoom. Hold the primary button and drag to pan.
+Use **Reset View** to fit the whole theatre back into the map area.
+
 ## Demo video
 
 [Watch the demo with English captions on OneDrive](https://adauniversity-my.sharepoint.com/:v:/g/personal/aibrahimli17101_ada_edu_az/IQBR9wBkFXn7SJZS8J-mFe29AadCcsyqaRA3hJWcVo8RIP8?e=YjrSH4&nav=eyJyZWZlcnJhbEluZm8iOnsicmVmZXJyYWxBcHAiOiJTdHJlYW1XZWJBcHAiLCJyZWZlcnJhbFZpZXciOiJTaGFyZURpYWxvZy1MaW5rIiwicmVmZXJyYWxBcHBQbGF0Zm9ybSI6IldlYiIsInJlZmVycmFsTW9kZSI6InZpZXcifX0%3D)
