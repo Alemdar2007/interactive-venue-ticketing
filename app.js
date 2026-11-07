@@ -440,3 +440,66 @@ const mapResizeObserver = new ResizeObserver(resetMapView);
 mapResizeObserver.observe(mapViewport);
 
 resetMapView();
+// Bonus: mouse-wheel zoom and drag to pan.
+mapViewport.style.cursor = "grab";
+mapViewport.style.userSelect = "none";
+
+mapViewport.addEventListener("wheel", function (event) {
+  if (event.ctrlKey || event.deltaY === 0) return;
+
+  event.preventDefault();
+  zoomMap(event.deltaY < 0 ? 1.1 : 1 / 1.1);
+}, { passive: false });
+
+let mapDrag = null;
+let skipDragClick = false;
+
+mapViewport.addEventListener("pointerdown", function (event) {
+  if (event.pointerType !== "mouse" || event.button !== 0) return;
+
+  skipDragClick = false;
+  mapDrag = {
+    id: event.pointerId,
+    x: event.clientX,
+    y: event.clientY,
+    moved: false
+  };
+});
+
+window.addEventListener("pointermove", function (event) {
+  if (!mapDrag || event.pointerId !== mapDrag.id) return;
+
+  const dx = event.clientX - mapDrag.x;
+  const dy = event.clientY - mapDrag.y;
+
+  // Small mouse movements still count as a normal seat click.
+  if (!mapDrag.moved && Math.hypot(dx, dy) < 5) return;
+
+  if (!mapDrag.moved) {
+    mapDrag.moved = true;
+    mapViewport.setPointerCapture(event.pointerId);
+    mapViewport.style.cursor = "grabbing";
+  }
+
+  moveMap(dx, dy);
+  mapDrag.x = event.clientX;
+  mapDrag.y = event.clientY;
+});
+
+function finishMapDrag(event) {
+  if (!mapDrag || event.pointerId !== mapDrag.id) return;
+
+  skipDragClick = event.type === "pointerup" && mapDrag.moved;
+  mapDrag = null;
+  mapViewport.style.cursor = "grab";
+}
+
+window.addEventListener("pointerup", finishMapDrag);
+window.addEventListener("pointercancel", finishMapDrag);
+
+mapViewport.addEventListener("click", function (event) {
+  if (!skipDragClick || event.detail === 0) return;
+
+  skipDragClick = false;
+  event.stopPropagation();
+}, true);
