@@ -39,6 +39,7 @@ const addButton = document.getElementById("add-to-cart");
 const statusMessage = document.getElementById("status-message");
 const cartItems = document.getElementById("cart-items");
 const cartTotal = document.getElementById("cart-total");
+const cartCount = document.getElementById("cart-count");
 const emptyCart = document.getElementById("empty-cart");
 
 function createSeatData() {
@@ -229,6 +230,7 @@ function renderCart() {
   });
 
   cartTotal.textContent = total;
+  cartCount.textContent = cart.length;
   emptyCart.hidden = cart.length > 0;
 }
 
